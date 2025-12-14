@@ -6,7 +6,7 @@ import json
 import logging
 from pathlib import Path
 from lxml import html as h
-from news_scraper.html_content import clean_html_body
+from news_scraper.html_content import clean_html_body, prepare_html
 from news_scraper.request import Request, RequestError
 
 
@@ -176,7 +176,8 @@ class Praza():
         if body_html is None:
             return None
 
-        body = self._get_bodytext(tree)
+        body = self._get_bodytext(
+            tree.xpath(".//div[contains(@class, 'ml-article-single')]"))
         if body is None:
             return None
         images = self._get_images(tree)
@@ -213,15 +214,20 @@ class Praza():
 
         return None
 
-    def _get_bodytext(self, tree):
+    def _get_bodytext(self, article):
         """
         Extrae o contido en texto da nova.
 
         :params: tree: árvore do artigo
         :returns: str: conteúdo do texto extraído
         """
+        if not article:
+            logger.warning("No article body found in article %s", self.url)
+            return None
+        article = article[0]
         try:
-            body = clean_html_body(h.tostring(tree, encoding="unicode"))
+            article = prepare_html(h.tostring(article, encoding="unicode"))
+            body = clean_html_body(article)
         except RuntimeError as e:
             logger.error("Error cleaning HTML body: %s", e)
             return None

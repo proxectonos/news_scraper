@@ -70,6 +70,7 @@ def prepare_html(html_content):
     pattern = r'<(/?)(strong)>'
     html_content = re.sub(pattern, "", html_content)
     html_content = re.sub(r'<p><br>\n', '<p>', html_content)
+    html_content = re.sub(r'<p>\n\t', '<p>', html_content)
     return (
         "<html><body><p class='article'>" +
         (html.unescape(html_content.strip()) if html_content else "") +
