@@ -2,25 +2,6 @@
 
 Operacionalización do acceso a corpus de texto para o treino de modelos en galego.
 
-## Praza Pública
-
-Descarga os HTML de Praza Pública desde os inicios ate hoxe.
-
-```
-$ python run.py --loglevel INFO praza --download
-```
-
-Descarga só as categorías "Acontece" e "Ciencia e tecnoloxía".
-
-```
-python run.py --loglevel INFO praza --download --category Acontece "Ciencia e tecnoloxía"
-```
-
-Procesa os HTML para producir o JSON final.
-
-```
-$ python run.py --loglevel INFO praza --parse 
-```
 
 Coa opción `--help` obtense axuda.
 
@@ -59,3 +40,32 @@ options:
                         ficheiro).
 ```
 
+
+
+## Praza Pública
+
+Descarga os HTML de Praza Pública desde os inicios ate hoxe.
+
+```
+$ python run.py --loglevel INFO praza --download
+```
+
+Descarga só as categorías "Acontece" e "Ciencia e tecnoloxía".
+
+```
+python run.py --loglevel INFO praza --download --category Acontece "Ciencia e tecnoloxía"
+```
+
+Procesa os HTML para producir o JSON final.
+
+```
+$ python run.py --loglevel INFO praza --parse 
+```
+
+## NÓS Diario
+
+Procesa os XML en formato NewsML descarregados previamente do RSS privado.
+
+```
+$ python run.py --loglevel INFO nosdiario --parse 
+```
