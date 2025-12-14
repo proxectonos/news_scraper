@@ -6,7 +6,7 @@ import json
 import logging
 from pathlib import Path
 from lxml import html as h
-from news_scraper.prazapublica.html_content import clean_html_body
+from news_scraper.html_content import clean_html_body
 from news_scraper.request import Request, RequestError
 
 
@@ -24,14 +24,10 @@ CATEGORIES = {
 
 logger = logging.getLogger(__name__)
 
-INDIR = "data/prazapublica/rss"
-OUTDIR = "data/prazapublica/html"
-BASE_URL = "https://praza.gal"
-
 
 class Praza():
     """
-    Class to download articles from Praza Pública.
+    Class to download and parse articles from Praza Pública.
     """
     def __init__(self, config):
         self.config = config
@@ -85,7 +81,7 @@ class Praza():
         Parsea o HTML duma nova e extrae os dados relevantes.
 
         :params: html_file: ficheiro HTML da nova
-        :returns: tuple: (boolean, str) resultado da operação
+        :returns: none:
         """
         for html_file in html_files:
             logger.info("Parsing file: %s", html_file)
@@ -127,7 +123,7 @@ class Praza():
         """
         dst = Path(
             self.config["corpus"]) / html_file.relative_to(
-                Path(self.config["html"])
+                Path(self.config["source"])
             ).with_suffix(".json")
         dst.parent.mkdir(parents=True, exist_ok=True)
 
@@ -395,7 +391,7 @@ class Praza():
         (year, month, day) = isodate.split('.')[0].split("T")[0].split("-")
 
         try:
-            out_dir = Path(OUTDIR) / str(year) / str(month)
+            out_dir = Path(self.config["source"]) / str(year) / str(month)
             out_dir.mkdir(parents=True, exist_ok=True)
         except Exception as e:
             return False, str(e)
@@ -443,7 +439,8 @@ class Praza():
             if date:
                 date = date[0]
 
-            result, msg = self._download_article(f"{BASE_URL}{href}", date)
+            result, msg = self._download_article(
+                f"{self.config['base_url']}{href}", date)
             if result:
                 if msg == "exists":
                     self.articles_exists += 1
