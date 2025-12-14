@@ -6,7 +6,8 @@ import configparser
 import logging
 import sys
 from pathlib import Path
-from news_scraper.prazapublica.praza import Praza, CATEGORIES
+from news_scraper.prazapublica import Praza, CATEGORIES
+from news_scraper.nosdiario import NosDiario
 
 logger = logging.getLogger(__name__)
 
@@ -49,7 +50,7 @@ def parse_args():
         "praza",
         help="Scraper de Praza Pública"
     )
-    group = praza_parser.add_mutually_exclusive_group(required=True)
+    group_p = praza_parser.add_mutually_exclusive_group(required=True)
     praza_parser.add_argument(
         "--category",
         "-c",
@@ -58,7 +59,7 @@ def parse_args():
         default=sorted(CATEGORIES.keys()),
         help="Categorias para descarregar.",
     )
-    group.add_argument(
+    group_p.add_argument(
         "--download",
         "-d",
         nargs="?",
@@ -70,7 +71,7 @@ def parse_args():
             "(FROM: [%(choices)s]; por defecto: '%(const)s')."
         ),
     )
-    group.add_argument(
+    group_p.add_argument(
         "--parse",
         "-p",
         nargs="?",
@@ -82,21 +83,33 @@ def parse_args():
         )
     )
 
-    nosdiario_parser = subparsers.add_parser(
+    nos_parser = subparsers.add_parser(
         "nosdiario",
         help="Scraper de Nós Diario"
     )
-    nosdiario_parser.add_argument(
-        "--category",
-        "-c",
-        nargs="+",
-        choices=[
-            "politica", "sociedade", "cultura", "internacional", "economia"
-        ],
-        default=[
-            "politica", "sociedade", "cultura", "internacional", "economia"
-        ],
-        help="Categorias para descarregar.",
+    group_n = nos_parser.add_mutually_exclusive_group(required=True)
+    group_n.add_argument(
+        "--parse",
+        "-p",
+        nargs="?",
+        const="ALL",
+        metavar="FILE",
+        help=(
+            "Parsea todos os ficheiros XML descarregados "
+            "(FILE para processar só um ficheiro)."
+        )
+    )
+    group_n.add_argument(
+        "--download",
+        "-d",
+        nargs="?",
+        const="category",
+        choices=["category", "rss"],
+        metavar="FROM",
+        help=(
+            "Descarregar os ficheiros XML "
+            "(FROM: [%(choices)s]; por defecto: '%(const)s')."
+        ),
     )
 
     return parser.parse_args()
@@ -108,6 +121,19 @@ def main(args):
 
     :params: args: argumentos da linha de comandos
     """
+    def parse_paths(args, config, pattern):
+        """
+        Retorna os paths a parsear segundo os argumentos.
+
+        :params: args: argumentos da linha de comandos
+        :params: config: configuração do scraper
+        :params: pattern: extensão dos ficheiros a parsear
+        :returns: lista de paths a parsear
+        """
+        if args.parse == "ALL":
+            return Path(config["source"]).rglob(pattern)
+        return [Path(args.parse)]
+
     try:
         config = load_config()[args.source]
     except KeyError:
@@ -116,25 +142,26 @@ def main(args):
 
     if args.source == "praza":
         p = Praza(config=config)
-        if args.parse:
-            if args.parse == "ALL":
-                p.parse(Path(config["html"]).rglob("*.html"))
-            else:
-                p.parse([Path(args.parse)])
-
-            print(
-                f"Parsed {p.articles_ok + p.articles_error} articles, "
-                f"{p.articles_error} with errors"
-            )
-
-        elif args.download:
-            if args.download == "rss":
-                raise RuntimeError("rss not implemented yet")
-            for category in args.category:
-                logger.info("Fetching category: %s", category)
-                p.download_from_category(category)
+        pattern = "*.html"
     elif args.source == "nosdiario":
-        raise RuntimeError("nosdiario not implemented yet")
+        p = NosDiario(config=config)
+        pattern = "*.xml"
+    else:
+        raise ValueError(f"Unknown source: {args.source}")
+
+    if args.parse:
+        p.parse(parse_paths(args, config, pattern))
+        print(
+            f"Parsed {p.articles_ok + p.articles_error} articles, "
+            f"{p.articles_error} with errors"
+        )
+
+    elif args.source == "praza" and args.download:
+        if args.download == "rss":
+            raise RuntimeError("rss not implemented yet")
+        for category in args.category:
+            logger.info("Fetching category: %s", category)
+            p.download_from_category(category)
 
 
 if __name__ == "__main__":
