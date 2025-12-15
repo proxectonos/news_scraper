@@ -1,3 +1,5 @@
+![ALIA Project](https://langtech-bsc.gitbook.io/alia-kit/~gitbook/image?url=https%3A%2F%2F798406309-files.gitbook.io%2F%7E%2Ffiles%2Fv0%2Fb%2Fgitbook-x-prod.appspot.com%2Fo%2Fspaces%252Fk1rmBoGwZe21EgkVbqEr%252Fuploads%252FHG0Arow2kpc28XAmZ3s2%252FLOGOALIA_POS_COLOR.png%3Falt%3Dmedia%26token%3D7d7cc93d-8cac-408d-a950-f5c7d189192b&width=768&dpr=4&quality=100&sign=c610ba&sv=2)
+
 # news_scraper
 
 Operacionalización do acceso a corpus de texto para o treino de modelos en galego.
