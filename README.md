@@ -42,7 +42,12 @@ options:
                         ficheiro).
 ```
 
+A configuración básica está incluída nun ficheiro INI (`config.ini`) contendo as rutas onde se almacenaran tanto os ficheiros intermedios (XML, HTML, RSS, etc) como os finais (JSON).
 
+- `data`: directorio base para cada fonte de datos.
+- `source`: directorio no que se almacenan os artigos.
+- `rss`: directorio no que se almacenan os ficheiros de índices RSS empregados para obter os artigos dos xornais.
+- `corpus`: directorio no que se almacenan os ficheiros JSON finais.
 
 ## Praza Pública
 
